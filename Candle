@@ -1,0 +1,160 @@
+#include <iostream>
+#include <vector>
+#include <iomanip>
+#include <string>
+#include <map>
+
+using namespace std;
+
+// Structure to represent a candle product
+struct Product {
+    int id;
+    string name;
+    string description;
+    double price;
+};
+
+// Function to display a decorative "background" for the application
+void displayBackground() {
+    cout << "===================================" << endl;
+    cout << "      Welcome to Candle Store      " << endl;
+    cout << "===================================" << endl;
+}
+
+// Function to display the available products
+void displayProducts(const vector<Product>& products) {
+    displayBackground();
+    cout << "Available Candles:\n";
+    cout << left << setw(5) << "ID" << setw(20) << "Name" << setw(10) << "Price" << endl;
+    cout << "-----------------------------------" << endl;
+    for (const auto& product : products) {
+        cout << left << setw(5) << product.id
+             << setw(20) << product.name
+             << "$" << setw(10) << fixed << setprecision(2) << product.price << endl;
+        cout << "   Description: " << product.description << endl;
+    }
+    cout << "-----------------------------------\n";
+}
+
+// Function to add a product to the cart
+void addToCart(map<int, int>& cart, const vector<Product>& products) {
+    int productId, quantity;
+    cout << "Enter the product ID to add to cart: ";
+    cin >> productId;
+    cout << "Enter the quantity: ";
+    cin >> quantity;
+
+    // Check if the product exists
+    bool found = false;
+    for (const auto& product : products) {
+        if (product.id == productId) {
+            cart[productId] += quantity;
+            found = true;
+            cout << "Added " << quantity << " of " << product.name << " to your cart.\n";
+            break;
+        }
+    }
+    if (!found) {
+        cout << "Invalid product ID. Please try again.\n";
+    }
+}
+
+// Function to display the cart and calculate the total
+void displayCart(const map<int, int>& cart, const vector<Product>& products) {
+    displayBackground();
+    if (cart.empty()) {
+        cout << "Your cart is empty.\n";
+        return;
+    }
+
+    double total = 0.0;
+    cout << "Your Cart:\n";
+    cout << left << setw(5) << "ID" << setw(20) << "Name" << setw(10) << "Price"
+         << setw(10) << "Quantity" << setw(10) << "Total" << endl;
+    cout << "--------------------------------------------------------------" << endl;
+    for (const auto& [productId, quantity] : cart) {
+        for (const auto& product : products) {
+            if (product.id == productId) {
+                double productTotal = product.price * quantity;
+                total += productTotal;
+                cout << left << setw(5) << product.id
+                     << setw(20) << product.name
+                     << "$" << setw(10) << fixed << setprecision(2) << product.price
+                     << setw(10) << quantity
+                     << "$" << setw(10) << fixed << setprecision(2) << productTotal << endl;
+                break;
+            }
+        }
+    }
+    cout << "--------------------------------------------------------------" << endl;
+    cout << "Total Price: $" << fixed << setprecision(2) << total << endl;
+}
+
+// Function to process checkout
+void checkout(map<int, int>& cart, const vector<Product>& products) {
+    displayCart(cart, products);
+    if (cart.empty()) {
+        cout << "Cannot proceed to checkout. Your cart is empty.\n";
+        return;
+    }
+
+    cout << "Do you want to proceed with the purchase? (yes/no): ";
+    string choice;
+    cin >> choice;
+
+    if (choice == "yes") {
+        cout << "Purchase successful! Thank you for shopping with us.\n";
+        cart.clear();
+    } else {
+        cout << "Checkout canceled.\n";
+    }
+}
+
+// Main program
+int main() {
+    // List of products
+    vector<Product> products = {
+        {1, "Vanilla Bliss", "A warm vanilla-scented candle.", 12.99},
+        {2, "Ocean Breeze", "Fresh oceanic scent.", 14.99},
+        {3, "Lavender Fields", "Relaxing lavender aroma.", 16.49},
+        {4, "Cinnamon Spice", "Spicy and cozy cinnamon scent.", 11.79}
+    };
+
+    map<int, int> cart; // Cart to store product ID and quantity
+    int choice;
+
+    while (true) {
+        displayBackground();
+        cout << "1. View Products\n";
+        cout << "2. Add to Cart\n";
+        cout << "3. View Cart\n";
+        cout << "4. Checkout\n";
+        cout << "5. Exit\n";
+        cout << "Choose an option: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                displayProducts(products);
+                break;
+            case 2:
+                addToCart(cart, products);
+                break;
+            case 3:
+                displayCart(cart, products);
+                break;
+            case 4:
+                checkout(cart, products);
+                break;
+            case 5:
+                cout << "Thank you for visiting Candle Store!\n";
+                return 0;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+        }
+
+        cout << "\nPress Enter to continue...";
+        cin.ignore();
+        cin.get();
+    }
+}
